@@ -1,0 +1,20 @@
+{
+  "name": "ai-desk-cloudflare-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Desk — Chat (Gemini/OpenAI/OpenAI-compatible gateway) + key settings + MCP servers (utils, Google Calendar, text-to-SQL) + MCP client + Telegram, all in one Cloudflare Worker",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.0.0",
+    "typescript": "^5.5.0",
+    "wrangler": "^4.0.0"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.2"
+  }
+}

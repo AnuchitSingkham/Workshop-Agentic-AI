@@ -1,0 +1,38 @@
+# คัดลอกไฟล์นี้เป็น .dev.vars (สำหรับรันทดสอบในเครื่องด้วย `npx wrangler dev` เท่านั้น)
+# ตอน deploy จริงห้ามใช้ไฟล์นี้ — ต้องตั้งผ่าน `npx wrangler secret put <ชื่อ>` เพื่อเข้ารหัสเก็บฝั่ง Cloudflare
+# ห้าม commit ไฟล์ .dev.vars ขึ้น git เด็ดขาด (อยู่ใน .gitignore แล้ว)
+
+# ป้องกันหน้า/endpoint settings (Module 1.2, 1.3) — ตั้งเป็นค่าอะไรก็ได้ที่คาดเดายาก
+# ถ้าไม่ตั้งค่านี้ endpoint settings ทั้งหมดจะถูกปิด (fail-closed) ไม่ใช่เปิดโล่ง
+ADMIN_TOKEN=
+
+# รหัสผ่านเข้าเว็บทั้งเว็บ (หน้า Chat/settings ทุกหน้า + /api/chat) — แจกให้คนใน class คนละตัวกับ ADMIN_TOKEN
+# ถ้าไม่ตั้งค่านี้ ทั้งเว็บจะเข้าไม่ได้เลย (fail-closed) — ดู src/lib/site-session.ts
+CLASS_PASSWORD=
+
+# token ที่ MCP client ภายนอก (n8n, Claude Desktop/Code ฯลฯ) ต้องส่งมาใน header
+# `Authorization: Bearer <token>` เพื่อเรียก /mcp/* — ถ้าไม่ตั้งค่านี้ /mcp/* ทั้งหมดจะปิด (fail-closed)
+MCP_ACCESS_TOKEN=
+
+# Module 1.1 — อย่างน้อยต้องมี 1 ใน 3 ตัวนี้ ถึงจะคุยได้ (ไม่มีก็ยังเปิดหน้าเว็บได้ แต่คุยไม่ได้)
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+# key ของ AI gateway แบบ OpenAI-compatible กำหนดเอง (provider "openai-compat") — base URL ตั้งใน [vars] ของ
+# wrangler.toml (OPENAI_COMPAT_BASE_URL) หรือหน้า "ตั้งค่า Key" แทน เพราะไม่ใช่ความลับ
+OPENAI_COMPAT_API_KEY=
+
+# Module 2.2 — ต้องสร้าง Google OAuth client (Desktop app) + ขอ refresh token มาก่อน ดู SETUP.md
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REFRESH_TOKEN=
+
+# Module 2.3 — ต้องสร้างบอทผ่าน @BotFather ก่อน ดู SETUP.md
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_WEBHOOK_SECRET=
+
+# Module 5 — ต่อฐานข้อมูล MySQL (แนะนำให้ใช้ DB user ที่มีสิทธิ์แค่ SELECT เท่านั้น) ดู SETUP.md
+DB_HOST=
+DB_PORT=3306
+DB_NAME=
+DB_USER=
+DB_PASSWORD=

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Desk | Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../shared/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="AI Desk หน้าหลัก"><span class="brand-mark">✦</span><span>AI Desk</span></a>
+      <nav class="top-nav" aria-label="เมนูหลัก">
+        <a href="../chat/" aria-current="page">Chat</a>
+        <a href="../settings-keys/">ตั้งค่า Key</a>
+        <a href="../settings-mcp/">ตั้งค่า MCP server</a>
+      </nav>
+    </header>
+
+    <section class="workspace" aria-label="AI chat workspace">
+      <div class="intro">
+        <p class="eyebrow">MODULE 1.1</p>
+        <h1>คุยกับผู้ช่วยที่ต่อยอดได้</h1>
+        <p class="lede">
+          คุยกับ Gemini, OpenAI หรือ AI gateway แบบ OpenAI-compatible ที่กำหนดเอง ผ่าน backend จริง (ไม่ใช่เรียกจาก
+          เบราว์เซอร์ตรง ๆ) — ถ้าเปิดใช้ MCP server ไว้ (Module 2.1–2.2, 5) ผู้ช่วยจะเรียกเครื่องมือให้เองอัตโนมัติเมื่อจำเป็น
+        </p>
+        <div class="quick-prompts" aria-label="คำถามตัวอย่าง">
+          <button class="prompt" data-prompt="ตอนนี้กี่โมงแล้ว">ตอนนี้กี่โมงแล้ว?</button>
+          <button class="prompt" data-prompt="12 คูณ (3 บวก 4) เท่ากับเท่าไหร่">ลองคำนวณเลขดู</button>
+          <button class="prompt" data-prompt="มีนัดอะไรบ้างในสัปดาห์นี้">มีนัดอะไรบ้างสัปดาห์นี้?</button>
+        </div>
+      </div>
+
+      <section class="chat-panel" aria-label="หน้าต่างสนทนา">
+        <div class="panel-head">
+          <div class="agent-id">
+            <span class="status-dot" id="status-dot"></span>
+            <div><strong>AI Desk Assistant</strong><small id="connection-label">Gemini · gemini-flash-latest</small></div>
+          </div>
+          <button id="clear-chat" class="icon-button" type="button" title="ล้างบทสนทนา" aria-label="ล้างบทสนทนา">↺</button>
+        </div>
+        <div id="messages" class="messages" aria-live="polite">
+          <article class="message assistant">
+            <div class="avatar">✦</div>
+            <div class="bubble">
+              <p>สวัสดีครับ ผมคือ AI Desk Assistant</p>
+              <p>ลองถามอะไรสักอย่าง หรือกดปุ่มตัวอย่างด้านซ้ายได้เลยครับ</p>
+              <time>ตอนนี้</time>
+            </div>
+          </article>
+        </div>
+        <form id="chat-form" class="composer">
+          <label class="sr-only" for="message-input">พิมพ์ข้อความ</label>
+          <textarea id="message-input" rows="1" placeholder="ถามอะไรดี..." autocomplete="off"></textarea>
+          <button class="send-button" type="submit" aria-label="ส่งข้อความ" title="ส่งข้อความ">↑</button>
+        </form>
+      </section>
+
+      <aside class="settings-aside panel" aria-label="ตั้งค่าการเชื่อมต่อ">
+        <h2>การเชื่อมต่อ</h2>
+        <p class="panel-sub">เลือก provider/model ที่จะคุยด้วยรอบนี้</p>
+
+        <label for="provider">AI provider</label>
+        <select id="provider">
+          <option value="gemini">Google Gemini</option>
+          <option value="openai">OpenAI</option>
+          <option value="openai-compat">Custom (OpenAI-compatible gateway)</option>
+        </select>
+
+        <label for="model">Model</label>
+        <input id="model" type="text" placeholder="gemini-flash-latest" autocomplete="off" />
+
+        <div class="notice">
+          <strong>Key เก็บฝั่ง server</strong>
+          <p>
+            ไม่ต้องกรอก API key ในหน้านี้ — ผู้ดูแลตั้งค่าไว้ที่ <code>GEMINI_API_KEY</code> /
+            <code>OPENAI_API_KEY</code> / <code>OPENAI_COMPAT_API_KEY</code> (+ <code>OPENAI_COMPAT_BASE_URL</code>
+            สำหรับ gateway แบบกำหนดเอง) หรือเปลี่ยนได้จากหน้า <a href="../settings-keys/">ตั้งค่า Key</a>
+            ถ้ายังไม่ได้ตั้งค่า provider ที่เลือกจะตอบกลับด้วยข้อความแจ้งเตือนในแชท
+          </p>
+        </div>
+
+        <div class="notice" style="border-color: var(--mint); background: #eef7f1; margin-top: 12px">
+          <strong>MCP tools</strong>
+          <p>
+            ผู้ช่วยจะเรียกเครื่องมือจาก MCP server ที่เปิดใช้งานอยู่โดยอัตโนมัติเมื่อจำเป็น — ดู/ปรับรายการได้ที่หน้า
+            <a href="../settings-mcp/">ตั้งค่า MCP server</a>
+          </p>
+        </div>
+      </aside>
+    </section>
+    <footer><span>AI DESK · CLOUDFLARE WORKER</span><span>MODULE 1.1</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

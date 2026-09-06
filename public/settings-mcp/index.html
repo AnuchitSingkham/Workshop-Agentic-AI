@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Desk | ตั้งค่า MCP server</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="../shared/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="../chat/" aria-label="AI Desk หน้าหลัก"><span class="brand-mark">✦</span><span>AI Desk</span></a>
+      <nav class="top-nav" aria-label="เมนูหลัก">
+        <a href="../chat/">Chat</a>
+        <a href="../settings-keys/">ตั้งค่า Key</a>
+        <a href="../settings-mcp/" aria-current="page">ตั้งค่า MCP server</a>
+      </nav>
+    </header>
+
+    <p class="eyebrow">MODULE 1.3</p>
+    <h1>ตั้งค่า MCP server</h1>
+    <p class="lede">
+      เปิด/ปิด MCP server ที่ chat จะเรียกใช้ได้ (Module 2.1 Utils, Module 2.2 Google Calendar มาให้ในตัว)
+      หรือเพิ่ม MCP server ภายนอกของตัวเอง (ต้องรองรับ Streamable HTTP JSON-RPC) — หน้านี้ป้องกันด้วย admin token
+    </p>
+
+    <section class="panel" id="unlock-panel">
+      <h2>ปลดล็อกหน้านี้</h2>
+      <p class="panel-sub">กรอก admin token เดียวกับหน้าตั้งค่า Key</p>
+      <div class="row">
+        <input id="admin-token-input" type="password" placeholder="admin token" autocomplete="off" style="flex: 1; min-width: 200px" />
+        <button id="unlock-btn" class="btn" type="button">ปลดล็อก</button>
+      </div>
+      <p id="unlock-status" class="panel-sub" style="margin-top: 10px"></p>
+    </section>
+
+    <section class="panel" id="servers-panel" hidden>
+      <h2>MCP server ที่เปิดใช้งานได้</h2>
+      <p class="panel-sub">ปิดเครื่องมือไหนก็ได้ที่ไม่อยากให้ chat มองเห็น — server ในตัวปิดได้แต่ลบไม่ได้</p>
+      <div id="server-list" class="server-list"></div>
+    </section>
+
+    <section class="panel" id="add-panel" hidden>
+      <h2>เพิ่ม MCP server ภายนอก</h2>
+      <p class="panel-sub">ใส่ URL ปลายทาง (Streamable HTTP) ของ MCP server ที่อยากต่อเพิ่ม</p>
+      <label for="new-name">ชื่อ</label>
+      <input id="new-name" type="text" placeholder="เช่น My Notion MCP" />
+      <label for="new-url">URL</label>
+      <input id="new-url" type="url" placeholder="https://example.com/mcp" />
+      <label for="new-desc">คำอธิบาย <span class="optional">(ไม่บังคับ)</span></label>
+      <input id="new-desc" type="text" placeholder="ทำอะไรได้บ้าง" />
+      <div class="row" style="margin-top: 14px">
+        <button id="add-btn" class="btn" type="button">เพิ่ม server</button>
+      </div>
+      <p id="add-status" class="panel-sub" style="margin-top: 8px; min-height: 1em"></p>
+    </section>
+
+    <div class="notice">
+      <strong>ระวัง prompt injection ผ่านเครื่องมือ</strong>
+      <p>
+        ผลลัพธ์จาก MCP server ภายนอกจะถูกส่งกลับเข้าไปให้โมเดลอ่านโดยตรง — เพิ่มเฉพาะ MCP server ที่เชื่อถือได้
+        เพราะ server ที่ไม่น่าเชื่อถืออาจแฝงคำสั่งมาหลอกให้โมเดลทำสิ่งที่ไม่ตั้งใจ
+      </p>
+    </div>
+
+    <footer><span>AI DESK · CLOUDFLARE WORKER</span><span>MODULE 1.3</span></footer>
+  </main>
+  <script src="../shared/admin-auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
