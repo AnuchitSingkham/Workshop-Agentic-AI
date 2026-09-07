@@ -17,7 +17,7 @@
 
 | ไฟล์ | หน้าที่ |
 |---|---|
-| [`src/module-1.3-mcp-client-settings/client.ts`](../src/module-1.3-mcp-client-settings/client.ts) | MCP client จริง — ทำ `initialize` handshake แล้ว `tools/list`/`tools/call` ไปยัง MCP server ภายนอก (รองรับทั้ง response แบบ JSON ตรง ๆ และ SSE) |
+| [`src/module-1.3-mcp-client-settings/client.ts`](../src/module-1.3-mcp-client-settings/client.ts) | MCP client จริง — ทำ session handshake ครบ 3 ขั้น (`initialize` → `notifications/initialized` → แนบ `Mcp-Session-Id`) แล้ว `tools/list`/`tools/call` ไปยัง MCP server ภายนอก รองรับ response ทั้งแบบ JSON ตรง ๆ และ SSE |
 | [`src/module-1.3-mcp-client-settings/registry.ts`](../src/module-1.3-mcp-client-settings/registry.ts) | `BUILTIN_SERVERS` (ตอนนี้ว่างเปล่า — module 2.1/2.2/5 จะมาเติม) + รวม tools จากทุก server ที่เปิดใช้งานเป็น "รายการ tools" เดียวให้ chat engine ใช้ |
 | [`src/module-1.3-mcp-client-settings/mcp-registry-store.ts`](../src/module-1.3-mcp-client-settings/mcp-registry-store.ts) | เก็บ server ภายนอก + สถานะ enabled ใน KV (`mcp:servers`) แล้ว merge กับ built-in ตอนอ่าน |
 | [`src/module-1.3-mcp-client-settings/mcp-registry-routes.ts`](../src/module-1.3-mcp-client-settings/mcp-registry-routes.ts) | `GET/POST /api/settings/mcp-servers`, `DELETE .../:id`, `POST .../:id/toggle` |
@@ -58,6 +58,16 @@ if (pathname === MCP_SERVERS_PREFIX || pathname.startsWith(`${MCP_SERVERS_PREFIX
 }
 ```
 
+**3. [`src/module-1.1-chat/tool-schema.ts`](../src/module-1.1-chat/tool-schema.ts) และ
+[`providers/gemini.ts`](../src/module-1.1-chat/providers/gemini.ts)** — สองไฟล์นี้เขียนไว้ตั้งแต่ Module 1.1 แต่
+**โมดูลนี้คือครั้งแรกที่มันถูกใช้จริง** เพราะเพิ่งมี tools ไหลเข้าไป จึงเป็นจุดที่เจอปัญหา — ดูหัวข้อ
+"3 กับดักที่เจอจริง" ด้านล่าง
+
+**4. [`public/chat/app.js`](../public/chat/app.js)** — เพิ่มกล่องพับเก็บได้ใต้คำตอบเมื่อมี `toolTrace`
+
+**5. [`public/index.html`](../public/index.html)** — เพิ่มการ์ด "🔌 จัดการ MCP Servers" เข้า Portal Hub
+พอจบโมดูลนี้หน้าแรกจะมีครบ 3 การ์ด (Chat / ตั้งค่า Key / จัดการ MCP Servers)
+
 ## built-in server มาจากไหน (จุดที่ต้องเข้าใจ)
 
 `registry.ts` มี object ชื่อ `BUILTIN_SERVERS` ที่ตอนนี้ **ว่างเปล่า**:
@@ -78,6 +88,64 @@ server ใหม่ ต้องมานั่งเพิ่มมือที
 
 ส่วน KV เก็บแค่ 2 อย่าง: server ภายนอกที่ผู้ใช้เพิ่มเอง และสถานะ `enabled` ของ server ที่ถูกสั่งเปิด/ปิด
 (built-in ที่ไม่เคยถูกสั่งอะไรเลย = `enabled: true` โดยปริยาย)
+
+## 3 กับดักที่เจอจริงตอนต่อ MCP server ภายนอก
+
+ทั้งสามข้อนี้มาจากการทำจริงแล้วพัง — จุดร่วมคือ **error ที่ได้ไม่ได้บอกสาเหตุตรง ๆ** ถ้าไม่รู้ล่วงหน้าจะหาสาเหตุนาน
+
+### 1. `Bad Request: Server not initialized`
+
+**อาการ**: เพิ่ม server ในหน้า `/settings-mcp/` สำเร็จ แต่ในหน้า Chat ผู้ช่วยบอกว่าไม่มีเครื่องมือ หรือดึง tool ไม่ได้
+
+**สาเหตุ**: Streamable HTTP MCP เป็นโปรโตคอลแบบ **มี session** — server ที่ stateful (n8n, FastMCP) จะไม่ยอมให้
+เรียก `tools/list` จนกว่าจะทำ handshake ครบก่อน การยิง `tools/list` เข้าไปเลยแบบ stateless จะโดนตีกลับ
+
+**วิธีแก้** — `client.ts` ต้องทำ 3 ขั้นนี้ให้ครบก่อนเรียก tool ใด ๆ:
+
+```
+1) POST initialize                     → อ่าน header  Mcp-Session-Id  จาก response
+2) POST notifications/initialized      → เป็น notification: ไม่มี id, server ตอบ 202 ไม่มี body
+                                          แนบ header Mcp-Session-Id ด้วย
+3) POST tools/list / tools/call        → แนบ Mcp-Session-Id ทุกครั้งจากนี้ไป
+```
+
+และทุก POST ต้องมี header `Accept: application/json, text/event-stream` — server บางตัวตอบ `406 Not Acceptable`
+ถ้าขาด header นี้ ส่วน server ที่ไม่ส่ง `Mcp-Session-Id` กลับมา (แบบ stateless) ก็ยังใช้งานได้ปกติ แค่ข้ามการแนบไป
+
+### 2. `400 Unknown name "$schema"` จาก Gemini
+
+**อาการ**: ต่อ server ได้ ดึงรายการ tool ได้ แต่พอถามคำถามในหน้า Chat แล้ว Gemini ตอบ 400 ทันที
+
+```
+Invalid JSON payload received. Unknown name "$schema" at 'tools[0].function_declarations[0].parameters'
+Invalid JSON payload received. Unknown name "additionalProperties"
+```
+
+**สาเหตุ**: MCP server ส่ง `inputSchema` เป็น JSON Schema มาตรฐาน (Draft 2020-12) ซึ่งมี `$schema`,
+`additionalProperties`, `$defs` ติดมาด้วย แต่ Gemini รับแค่ subset ของ OpenAPI 3.0 — เจอฟิลด์นอกรายการเมื่อไหร่
+ปฏิเสธทั้งก้อนทันที
+
+**วิธีแก้**: ให้ `toGeminiSchema()` ทำ whitelist เฉพาะ `type`, `description`, `properties`, `required`, `items`,
+`enum`, `format`, `nullable` แล้วตัดที่เหลือทิ้ง **แบบ recursive** (schema ที่ซ้อนอยู่ใน `properties` และ `items`
+ต้องโดนกรองด้วย ไม่ใช่กรองแค่ชั้นบนสุด)
+
+> OpenAI-compatible ไม่มีปัญหานี้เพราะรับ JSON Schema ตรง ๆ — ถ้าทดสอบด้วย provider นั้นอย่างเดียวจะไม่เจอบั๊ก
+> แล้วไปเจอเอาตอนสาธิตด้วย Gemini
+
+### 3. `400 Role 'function' is not supported`
+
+**อาการ**: รอบแรกโมเดลขอเรียก tool สำเร็จ เราเรียก tool ได้ผลลัพธ์แล้ว แต่พอส่งผลกลับเข้ารอบที่ 2 กลับพัง
+
+**สาเหตุ**: Gemini รับ role แค่ `user` กับ `model` เท่านั้น ส่วน `role: 'function'` เป็นของ PaLM API รุ่นเก่า
+และค่าใน `functionResponse.response` ต้องเป็น object เสมอ ส่ง string หรือตัวเลขเปล่า ๆ ไม่ได้
+
+**วิธีแก้**: ใน `gemini.ts` ส่ง content ที่มี `functionResponse` ด้วย `role: 'user'` และถ้า tool คืนค่าที่ไม่ใช่
+object ให้ห่อเป็น `{ result: <ค่า> }` ก่อน
+
+### เผื่อไว้ด้วย: server พังตัวเดียวห้ามล้มทั้งแชท
+
+`listAvailableTools()` ควรหุ้ม try/catch แยกต่อ server — ถ้าตัวไหนต่อไม่ติดให้ log แล้วคืน list ว่างของตัวนั้น
+ไม่ใช่ throw ทิ้งทั้งก้อน ไม่งั้นผู้เรียนที่เผลอใส่ URL ผิดไว้ตัวเดียวจะแชทไม่ได้เลยและงงว่าเกิดอะไรขึ้น
 
 ## ทดสอบ
 
@@ -105,7 +173,10 @@ curl -X DELETE <WORKER_URL>/api/settings/mcp-servers/<id> -H "X-Admin-Token: <AD
 
 **checkpoint ของโมดูลนี้**: กลับไปที่ `/chat/` แล้วคุยตามปกติ — ต้องยังคุยได้เหมือนเดิมทั้งที่ยังไม่มี tool สักตัว
 (ถ้าพังแปลว่า `resolveTools()` คืนค่าผิดรูป) ส่วนหน้า `/settings-mcp/` ต้องเพิ่ม/ลบ/toggle แล้ว reload หน้าเว็บ
-ค่ายังอยู่
+ค่ายังอยู่ และเปิดหน้าแรก `/` ต้องเห็นการ์ดครบ 3 ใบแล้ว
+
+ลองใส่ URL มั่ว ๆ เป็น server ภายนอกดูสักตัว (`https://example.invalid/mcp`) แล้วกลับไปแชท — **ต้องยังแชทได้ปกติ**
+ถ้าแชทพังแปลว่ายังไม่ได้ครอบ try/catch ต่อ server ตามหัวข้อกับดักด้านบน
 
 **ยังไม่เห็นผลเต็ม ๆ ตอนนี้เป็นเรื่องปกติ** — เพราะยังไม่มี MCP server ให้ต่อ ถ้ามี server ภายนอกใช้ได้จริงอยู่แล้ว
 ลองเพิ่มดูได้เลย แต่ถ้าไม่มี ให้ไปดูผลจริงที่ [Module 2.1](module-2.1-mcp-simple-server.md) ซึ่งจะสร้าง MCP server

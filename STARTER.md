@@ -5,7 +5,7 @@
 
 ## วิธีใช้
 
-**อยากให้ AI coding agent (Claude Code/Antigravity/Cursor ฯลฯ) เขียนให้แทนพิมพ์เอง** — อ่าน
+**อยากให้ AI coding agent (Cline/Kilo Code ฯลฯ) เขียนให้แทนพิมพ์เอง** — อ่าน
 [README.md](README.md) หัวข้อ "Vibecode ด้วย AI coding agent" แทนขั้นตอนด้านล่างนี้ได้เลย มันอธิบายวิธีสั่ง agent
 สร้างทีละ module ผ่าน `docs/module-X-spec.md` ไว้ละเอียดกว่า
 

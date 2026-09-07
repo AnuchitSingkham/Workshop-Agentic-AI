@@ -34,6 +34,7 @@ tools ให้เรียก, ยังไม่มี Telegram) — ตั้
 | [`src/module-1.1-chat/providers/openai-compat.ts`](../src/module-1.1-chat/providers/openai-compat.ts) | เรียก `chat/completions` แบบ OpenAI-compatible ไปที่ `baseUrl` ที่ส่งเข้ามา (ไม่ hardcode URL) — ใช้ได้ทั้งกับ provider `openai` (ส่ง baseUrl คงที่ของ OpenAI) และ `openai-compat` (ส่ง baseUrl ที่ผู้ใช้ตั้งเอง) เขียนแบบเดียวกับ gemini.ts |
 | [`src/module-1.1-chat/chat-routes.ts`](../src/module-1.1-chat/chat-routes.ts) | `POST /api/chat` — **ตอนนี้ `resolveApiKey()`/`resolveBaseUrl()` อ่านจาก `env` ตรง ๆ และ `resolveTools()` คืน `tools: []` เสมอ** (อ่านคอมเมนต์ในไฟล์ — บรรทัดที่ Module 1.2/1.3 จะมาแก้ทีหลังมีคอมเมนต์บอกไว้ชัดเจนว่าเปลี่ยนอะไร) |
 | [`public/chat/index.html`](../public/chat/index.html), [`app.js`](../public/chat/app.js) | หน้าเว็บ — ส่ง `POST /api/chat` พร้อม `{ message, history, provider, model }` |
+| [`public/index.html`](../public/index.html) | **Portal Hub** — หน้าแรก เขียนทับหน้า starter เดิม ตอนนี้มีการ์ดเดียวคือ 💬 หน้าต่าง Chat (module 1.2/1.3 จะมาเพิ่มต่อทีละใบ) |
 
 > **ทำไม gemini.ts/openai-compat.ts รองรับ tools ตั้งแต่แรกทั้งที่ยังไม่ใช้**: เพราะ provider client ไม่จำเป็นต้องรู้ว่า
 > tools มาจากไหน (นั่นคือหน้าที่ของ `chat-routes.ts`) แค่รับ `tools: McpTool[]` (ว่างก็ได้) กับ `callTool` มา —

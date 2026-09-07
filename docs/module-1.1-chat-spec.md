@@ -35,6 +35,7 @@ key ใด ๆ — ของ 2 อย่างนั้นเป็น module �
 | `src/module-1.1-chat/providers/openai-compat.ts` | เรียก `POST {baseUrl}/chat/completions` แบบ OpenAI-compatible (`messages`, `tools`/`tool_choice` ถ้ามี) วนเรียก tool สูงสุด 4 รอบเหมือนกัน — รับ `baseUrl` เป็นพารามิเตอร์ (ไม่ hardcode) ใช้ได้ทั้ง provider `openai` (baseUrl คงที่ `https://api.openai.com/v1`) และ `openai-compat` (baseUrl ผู้ใช้ตั้งเอง) ถ้า `baseUrl`/`apiKey` ว่าง ให้คืนข้อความแจ้งเตือน |
 | `src/module-1.1-chat/chat-routes.ts` | `handleChatRoute(request, env)` — `POST /api/chat` รับ `{message, history, provider?, model?}`, เรียก `resolveApiKey()`/`resolveBaseUrl()` (ตอนนี้ = อ่านจาก `env` ตรง ๆ ตาม provider) และ `resolveTools()` (ตอนนี้ = คืน `tools: []` เสมอ), ประกอบ system prompt ภาษาไทย, dispatch ไปยัง `runGeminiConversation()` หรือ `runOpenAiCompatConversation()` ตาม provider, คืน `{reply, provider, model, toolTrace}` — เขียน `buildSystemPrompt()`/`resolveProvider()`/`defaultModelFor()` แยกไว้ให้แก้ทีเดียว และเขียนฟังก์ชัน `runChatTurn()` ท้ายไฟล์ (module 2.3 จะมาเรียกใช้ตรง ๆ ในอนาคต ยังไม่ต้องมี route ใดเรียกตอนนี้) |
 | `public/chat/index.html`, `public/chat/app.js` | หน้าเว็บแชท plain HTML/CSS/JS (ไม่มี build step) — ส่ง `POST /api/chat` พร้อม `{message, history, provider, model}`, แสดงประวัติแชทแบบ bubble, มี dropdown เลือก provider (Gemini/OpenAI/Custom gateway) + ช่องกรอก model แบบ text input |
+| `public/index.html` | **Portal Hub** — หน้าแรกของระบบ (เขียนทับหน้า starter เดิมที่บอกว่า "ยังไม่ได้เพิ่ม module ใดเลย") แสดงการ์ดนำทางไปแต่ละหน้า ตอนนี้มีใบเดียวคือ 💬 หน้าต่าง Chat (`/chat/`) — module 1.2/1.3 จะมาเพิ่มการ์ดต่อทีละใบ |
 | `wrangler.toml` | `name`, `main = "src/index.ts"`, `compatibility_date` ปัจจุบัน, `[assets] directory = "./public"` binding `ASSETS`, `[[kv_namespaces]]` binding `APP_KV`, `[vars]` มี `GEMINI_MODEL`/`OPENAI_MODEL`/`DEFAULT_CHAT_PROVIDER`/`OPENAI_COMPAT_BASE_URL`/`OPENAI_COMPAT_MODEL` |
 
 ## ข้อกำหนดสำคัญ
@@ -54,6 +55,8 @@ key ใด ๆ — ของ 2 อย่างนั้นเป็น module �
 
 - [ ] `npm run typecheck` ผ่านไม่มี error
 - [ ] `npm run dev` แล้วเปิด `http://localhost:8787/chat/` เห็นหน้าแชทจริง มี dropdown เลือก provider
+- [ ] เปิด `http://localhost:8787/` (หน้าแรก) เห็น Portal Hub ที่มีการ์ด "💬 หน้าต่าง Chat" คลิกแล้วไป `/chat/` ได้จริง
+      (ไม่ใช่ข้อความ starter เดิม)
 - [ ] ยังไม่ตั้ง key ของ provider ที่เลือก: พิมพ์อะไรก็ได้ในหน้าแชท ต้องได้ข้อความแจ้งเตือนกลับมา ไม่ error/crash
 - [ ] ตั้งค่าแล้ว: พิมพ์ "สวัสดี" ในหน้าแชท (ลองทั้ง Gemini และ OpenAI ถ้ามี key ทั้งคู่) ต้องได้คำตอบจริงจากโมเดล
 - [ ] ทดสอบตรงด้วย curl ก็ต้องได้ผลเดียวกัน:

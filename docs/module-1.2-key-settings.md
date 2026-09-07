@@ -58,6 +58,10 @@ import { handleKeysRoute } from './module-1.2-key-settings/keys-routes';
 if (pathname === '/api/settings/keys') return handleKeysRoute(request, env);
 ```
 
+**3. [`public/index.html`](../public/index.html)** — เพิ่มการ์ด "🔑 ตั้งค่า Key & Gateway" (`/settings-keys/`)
+เข้าไปใน Portal Hub ที่ Module 1.1 สร้างไว้ จบโมดูลนี้หน้าแรกจะมี 2 การ์ด — เป็นวิธีให้ผู้เรียนเห็นความคืบหน้า
+ของตัวเองทุกครั้งที่ทำโมดูลเสร็จ และไม่ต้องพิมพ์ path เองในช่อง address bar
+
 ## ทดสอบ
 
 ```bash
