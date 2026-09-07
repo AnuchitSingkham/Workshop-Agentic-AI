@@ -10,10 +10,10 @@ Chat ต่อ MCP server เพิ่มเองได้, และคุย�
 
 ## Vibecode ด้วย AI coding agent
 
-อยากใช้ AI coding agent (Claude Code / Antigravity / Cursor ฯลฯ) เป็นคนเขียนไฟล์จริงให้แทนพิมพ์เอง — ทำตามนี้:
+อยากใช้ AI coding agent (Cline / Kilo Code ฯลฯ) เป็นคนเขียนไฟล์จริงให้แทนพิมพ์เอง — ทำตามนี้:
 
 1. **Fork repo นี้** เข้าบัญชี GitHub ของตัวเอง (ปุ่ม Fork มุมขวาบนของหน้า repo)
-2. **เปิด repo ที่ fork มาในเครื่องมือ AI coding** ที่ใช้ (Claude Code, Antigravity, Cursor ฯลฯ) ให้ agent มองเห็น/
+2. **เปิด repo ที่ fork มาในเครื่องมือ AI coding** ที่ใช้ (Cline, Kilo Code ฯลฯ) ให้ agent มองเห็น/
    แก้ไฟล์ในโปรเจกต์ได้จริง ไม่ใช่แค่วางโค้ดในแชทลอย ๆ
 3. ทำ [SETUP.md](SETUP.md) หัวข้อ 1–4 ให้ครบก่อนเริ่ม Module 1.1 (ไม่ถนัด command line ดูหัวข้อ "Deploy แบบไม่ใช้
    command line" ท้าย SETUP.md แทน)

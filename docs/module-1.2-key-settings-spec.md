@@ -36,6 +36,9 @@ provider (`GEMINI_API_KEY`/`OPENAI_API_KEY`/`OPENAI_COMPAT_API_KEY`) และ b
 
 **`src/router.ts`** — เพิ่ม route: `if (pathname === '/api/settings/keys') return handleKeysRoute(request, env);`
 
+**`public/index.html`** — เพิ่มการ์ดนำทาง "🔑 ตั้งค่า Key & Gateway" (`/settings-keys/`) เข้าไปใน Portal Hub
+ที่ module 1.1 สร้างไว้ — จบโมดูลนี้หน้าแรกต้องมี 2 การ์ด (Chat + ตั้งค่า Key)
+
 ## ข้อกำหนดสำคัญ
 
 1. Key ที่บันทึกแล้วห้าม echo กลับเต็ม ๆ ผ่าน API — โชว์แค่ 4 ตัวท้าย (mask ที่เหลือด้วย `••••`)
@@ -52,6 +55,7 @@ provider (`GEMINI_API_KEY`/`OPENAI_API_KEY`/`OPENAI_COMPAT_API_KEY`) และ b
 - [ ] `POST` ตั้ง key ของ provider ใดก็ได้ (หรือ `baseUrl`) ผ่าน curl หรือหน้าเว็บ `/settings-keys/` แล้วค่าที่ตั้ง
       มีผลจริงตอนคุยที่ `/chat/` (เลือก provider เดียวกันแล้วลองคุยดู)
 - [ ] `DELETE ...?provider=gemini` (หรือ `?field=baseUrl`) แล้วกลับไปใช้ค่าจาก `env`/`wrangler.toml` เหมือนเดิม
+- [ ] เปิดหน้าแรก `/` — เห็นการ์ด 2 ใบแล้ว (💬 หน้าต่าง Chat, 🔑 ตั้งค่า Key & Gateway) คลิกเข้าได้ทั้งคู่
 
 ## ห้ามทำเกินสโคป
 
