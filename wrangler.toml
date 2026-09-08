@@ -22,7 +22,7 @@ id = "9457d4e0c323454398d816c0880ca940"
 #   TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET
 
 [vars]
-# ค่า config ทั่วไปที่ไม่ใช่ความลับ ใส่ตรงนี้ได้ แก้ default model ได้จากตรงนี้จุดเดียว
+# ค่า config ทั่วไปที่ไม่ใช่ความลับ ใส่ตรงนี้ได้ แก้ default model ได้จากตรงนี้จุดเดียว 123
 GEMINI_MODEL = "gemini-flash-latest"
 OPENAI_MODEL = "gpt-4o-mini"
 DEFAULT_CHAT_PROVIDER = "gemini"
@@ -30,3 +30,5 @@ DEFAULT_CHAT_PROVIDER = "gemini"
 # "Replace base url" — ไม่บังคับ ใช้เฉพาะตอนเลือก provider นี้เท่านั้น
 OPENAI_COMPAT_BASE_URL = "Replace base url"
 OPENAI_COMPAT_MODEL = "gpt-4o-mini"
+
+
